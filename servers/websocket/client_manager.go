@@ -12,9 +12,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/link1st/gowebsocket/helper"
-	"github.com/link1st/gowebsocket/lib/cache"
-	"github.com/link1st/gowebsocket/models"
+	"breeze/helper"
+	"breeze/lib/cache"
+	"breeze/models"
 )
 
 // 连接管理

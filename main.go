@@ -1,10 +1,3 @@
-/**
-* Created by GoLand.
-* User: link1st
-* Date: 2019-07-25
-* Time: 09:59
- */
-
 package main
 
 import (
@@ -15,12 +8,12 @@ import (
 	"os/exec"
 	"time"
 
+	"breeze/lib/redislib"
+	"breeze/routers"
+	"breeze/servers/grpcserver"
+	"breeze/servers/task"
+	"breeze/servers/websocket"
 	"github.com/gin-gonic/gin"
-	"github.com/link1st/gowebsocket/lib/redislib"
-	"github.com/link1st/gowebsocket/routers"
-	"github.com/link1st/gowebsocket/servers/grpcserver"
-	"github.com/link1st/gowebsocket/servers/task"
-	"github.com/link1st/gowebsocket/servers/websocket"
 	"github.com/spf13/viper"
 )
 
@@ -53,7 +46,7 @@ func main() {
 
 }
 
-// 初始化日志
+// initFile 初始化日志
 func initFile() {
 	// Disable Console Color, you don't need console color when writing the logs to file.
 	gin.DisableConsoleColor()

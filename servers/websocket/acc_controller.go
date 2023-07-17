@@ -12,9 +12,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/link1st/gowebsocket/common"
-	"github.com/link1st/gowebsocket/lib/cache"
-	"github.com/link1st/gowebsocket/models"
+	"breeze/common"
+	"breeze/lib/cache"
+	"breeze/models"
 
 	"github.com/redis/go-redis/v9"
 )

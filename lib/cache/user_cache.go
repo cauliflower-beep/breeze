@@ -12,8 +12,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/link1st/gowebsocket/lib/redislib"
-	"github.com/link1st/gowebsocket/models"
+	"breeze/lib/redislib"
+	"breeze/models"
 
 	"github.com/redis/go-redis/v9"
 )

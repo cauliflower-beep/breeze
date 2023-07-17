@@ -8,10 +8,10 @@
 package routers
 
 import (
+	"breeze/controllers/home"
+	"breeze/controllers/systems"
+	"breeze/controllers/user"
 	"github.com/gin-gonic/gin"
-	"github.com/link1st/gowebsocket/controllers/home"
-	"github.com/link1st/gowebsocket/controllers/systems"
-	"github.com/link1st/gowebsocket/controllers/user"
 )
 
 func Init(router *gin.Engine) {

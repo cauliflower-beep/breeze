@@ -12,7 +12,7 @@ import (
 	"runtime/debug"
 	"time"
 
-	"github.com/link1st/gowebsocket/servers/websocket"
+	"breeze/servers/websocket"
 )
 
 func Init() {

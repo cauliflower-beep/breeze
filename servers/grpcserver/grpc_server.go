@@ -13,10 +13,10 @@ import (
 	"log"
 	"net"
 
-	"github.com/link1st/gowebsocket/common"
-	"github.com/link1st/gowebsocket/models"
-	"github.com/link1st/gowebsocket/protobuf"
-	"github.com/link1st/gowebsocket/servers/websocket"
+	"breeze/common"
+	"breeze/models"
+	"breeze/protobuf"
+	"breeze/servers/websocket"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/spf13/viper"

@@ -8,7 +8,7 @@
 package routers
 
 import (
-	"github.com/link1st/gowebsocket/servers/websocket"
+	"breeze/servers/websocket"
 )
 
 // Websocket 路由

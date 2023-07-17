@@ -12,8 +12,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"breeze/servers/websocket"
 	"github.com/gin-gonic/gin"
-	"github.com/link1st/gowebsocket/servers/websocket"
 	"github.com/spf13/viper"
 )
 

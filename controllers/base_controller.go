@@ -10,8 +10,8 @@ package controllers
 import (
 	"net/http"
 
+	"breeze/common"
 	"github.com/gin-gonic/gin"
-	"github.com/link1st/gowebsocket/common"
 )
 
 type BaseController struct {

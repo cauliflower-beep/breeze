@@ -12,8 +12,8 @@ import (
 	"runtime/debug"
 	"time"
 
-	"github.com/link1st/gowebsocket/lib/cache"
-	"github.com/link1st/gowebsocket/servers/websocket"
+	"breeze/lib/cache"
+	"breeze/servers/websocket"
 )
 
 func ServerInit() {
