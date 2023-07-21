@@ -1,10 +1,3 @@
-/**
-* Created by GoLand.
-* User: link1st
-* Date: 2019-07-30
-* Time: 12:27
- */
-
 package websocket
 
 import (
@@ -19,15 +12,14 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-// 查询所有用户
+// UserList 查询所有用户
 func UserList(appId uint32) (userList []string) {
 
 	userList = make([]string, 0)
 	currentTime := uint64(time.Now().Unix())
-	servers, err := cache.GetServerAll(currentTime)
+	servers, err := cache.GetServerAll(currentTime) //
 	if err != nil {
 		fmt.Println("给全体用户发消息", err)
-
 		return
 	}
 
@@ -46,7 +38,7 @@ func UserList(appId uint32) (userList []string) {
 	return
 }
 
-// 查询用户是否在线
+// CheckUserOnline 查询用户是否在线
 func CheckUserOnline(appId uint32, userId string) (online bool) {
 	// 全平台查询
 	if appId == 0 {
@@ -63,7 +55,7 @@ func CheckUserOnline(appId uint32, userId string) (online bool) {
 	return
 }
 
-// 查询用户 是否在线
+// checkUserOnline 查询用户 是否在线
 func checkUserOnline(appId uint32, userId string) (online bool, err error) {
 	key := GetUserKey(appId, userId)
 	userOnline, err := cache.GetUserOnlineInfo(key)
@@ -84,7 +76,7 @@ func checkUserOnline(appId uint32, userId string) (online bool, err error) {
 	return
 }
 
-// 给用户发送消息
+// SendUserMessage 给用户发送消息
 func SendUserMessage(appId uint32, userId string, msgId, message string) (sendResults bool, err error) {
 
 	data := models.GetTextMsgData(userId, msgId, message)

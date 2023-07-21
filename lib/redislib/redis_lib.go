@@ -1,10 +1,3 @@
-/**
-* Created by GoLand.
-* User: link1st
-* Date: 2019-07-25
-* Time: 14:18
- */
-
 package redislib
 
 import (
@@ -34,6 +27,7 @@ func ExampleNewClient() {
 	// Output: PONG <nil>
 }
 
+// GetClient 获取一个redis链接句柄
 func GetClient() (c *redis.Client) {
 
 	return client

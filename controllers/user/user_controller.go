@@ -1,10 +1,3 @@
-/**
-* Created by GoLand.
-* User: link1st
-* Date: 2019-07-25
-* Time: 12:11
- */
-
 package user
 
 import (
@@ -19,12 +12,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// 查看全部在线用户
+// List 查看全部在线用户
 func List(c *gin.Context) {
 
 	appIdStr := c.Query("appId")
-	appIdUint64, _ := strconv.ParseInt(appIdStr, 10, 32)
-	appId := uint32(appIdUint64)
+	appIdInt64, _ := strconv.ParseInt(appIdStr, 10, 32) // 设置 bitSize 为合适大小只是为了节省内存
+	appId := uint32(appIdInt64)
 
 	fmt.Println("http_request 查看全部在线用户", appId)
 
@@ -37,7 +30,7 @@ func List(c *gin.Context) {
 	controllers.Response(c, common.OK, "", data)
 }
 
-// 查看用户是否在线
+// Online 查看用户是否在线
 func Online(c *gin.Context) {
 
 	userId := c.Query("userId")

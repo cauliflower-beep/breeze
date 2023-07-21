@@ -42,7 +42,7 @@ func NewClientManager() (clientManager *ClientManager) {
 	return
 }
 
-// 获取用户key
+// GetUserKey 获取用户redis-key
 func GetUserKey(appId uint32, userId string) (key string) {
 	key = fmt.Sprintf("%d_%s", appId, userId)
 
