@@ -1,12 +1,12 @@
 # Breeze
 
-一个基于websocket单台机器支持百万连接分布式聊天(IM)系统。
+一个基于`websocket`，单台机器支持百万连接的分布式聊天(IM)系统。
 
 如它的名字，带给你如沐春风的感觉。
 
-使用golang实现websocket通讯，单机可以支持百万连接，使用gin框架、nginx负载、可以水平部署、程序内部相互通讯、使用grpc通讯协议。
+使用 golang 实现 websocket 通讯，单机可以支持百万连接，使用gin框架、nginx负载、可以水平部署、程序内部相互通讯、使用grpc通讯协议。
 
-文本从介绍webSocket是什么开始，然后开始介绍这个项目，以及在Nginx中配置域名做webSocket的转发，然后介绍如何搭建一个分布式系统。
+文本从介绍webSocket是什么开始，然后开始介绍这个项目，以及在Nginx中配置域名做webSocket的转发，然后介绍如何搭建一个`分布式系统`。
 
 
 ## 1、项目说明
@@ -14,10 +14,8 @@
 
 本文将介绍如何实现一个基于websocket聊天(IM)分布式系统。
 
-使用golang实现websocket通讯，单机支持百万连接，使用gin框架、nginx负载、可以水平部署、程序内部相互通讯、使用grpc通讯协议。
-
 - 项目中webSocket使用的架构图
-![网站架构图](\img\网站架构图.png)
+![网站架构图](.\img\网站架构图.png)
 
 #### 1.2 项目体验
 - [项目地址 gowebsocket](https://breeze)

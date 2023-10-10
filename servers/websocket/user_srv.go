@@ -17,7 +17,7 @@ func UserList(appId uint32) (userList []string) {
 
 	userList = make([]string, 0)
 	currentTime := uint64(time.Now().Unix())
-	servers, err := cache.GetServerAll(currentTime) //
+	servers, err := cache.GetServerAll(currentTime)
 	if err != nil {
 		fmt.Println("给全体用户发消息", err)
 		return

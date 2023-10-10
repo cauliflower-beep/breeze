@@ -54,7 +54,7 @@ func initFile() {
 	// Logging to a file.
 	logFile := viper.GetString("app.logFile")
 	f, _ := os.Create(logFile)
-	gin.DefaultWriter = io.MultiWriter(f)
+	gin.DefaultWriter = io.MultiWriter(f) // 将日志同时写入到控制台以及之前创建的日志文件中
 }
 
 func initConfig() {

@@ -18,7 +18,7 @@ type BaseController struct {
 	gin.Context
 }
 
-// 获取全部请求解析到map
+// Response 获取全部请求解析到map
 func Response(c *gin.Context, code uint32, msg string, data map[string]interface{}) {
 	message := common.Response(code, msg, data)
 
