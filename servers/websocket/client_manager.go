@@ -17,7 +17,7 @@ import (
 	"breeze/models"
 )
 
-// 连接管理
+// ClientManager 连接管理
 type ClientManager struct {
 	Clients     map[*Client]bool   // 全部的连接
 	ClientsLock sync.RWMutex       // 读写锁

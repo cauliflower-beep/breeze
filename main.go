@@ -35,7 +35,9 @@ func main() {
 	// 服务注册
 	task.ServerInit()
 
+	// 监听webSocket端口
 	go websocket.StartWebSocket()
+
 	// grpc
 	go grpcserver.Init()
 

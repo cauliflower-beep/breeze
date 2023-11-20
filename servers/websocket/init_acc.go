@@ -69,7 +69,7 @@ func GetDefaultAppId() (appId uint32) {
 	return
 }
 
-// 启动程序
+// StartWebSocket 启动程序
 func StartWebSocket() {
 
 	serverIp = helper.GetServerIp()
@@ -85,7 +85,7 @@ func StartWebSocket() {
 	go clientManager.start()
 	fmt.Println("WebSocket 启动程序成功", serverIp, serverPort)
 
-	http.ListenAndServe(":"+webSocketPort, nil)
+	_ = http.ListenAndServe(":"+webSocketPort, nil)
 }
 
 func wsPage(w http.ResponseWriter, req *http.Request) {

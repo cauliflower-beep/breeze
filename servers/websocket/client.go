@@ -33,19 +33,19 @@ func (l *login) GetKey() (key string) {
 	return
 }
 
-// 用户连接
+// Client 用户连接
 type Client struct {
 	Addr          string          // 客户端地址
 	Socket        *websocket.Conn // 用户连接
 	Send          chan []byte     // 待发送的数据
 	AppId         uint32          // 登录的平台Id app/web/ios
 	UserId        string          // 用户Id，用户登录以后才有
-	FirstTime     uint64          // 首次连接事件
+	FirstTime     uint64          // 首次连接时间
 	HeartbeatTime uint64          // 用户上次心跳时间
 	LoginTime     uint64          // 登录时间 登录以后才有
 }
 
-// 初始化
+// NewClient 初始化客户端
 func NewClient(addr string, socket *websocket.Conn, firstTime uint64) (client *Client) {
 	client = &Client{
 		Addr:          addr,
@@ -65,7 +65,7 @@ func (c *Client) GetKey() (key string) {
 	return
 }
 
-// 读取客户端数据
+// read 读取客户端数据
 func (c *Client) read() {
 	defer func() {
 		if r := recover(); r != nil {
@@ -92,7 +92,7 @@ func (c *Client) read() {
 	}
 }
 
-// 向客户端写数据
+// write 向客户端写数据
 func (c *Client) write() {
 	defer func() {
 		if r := recover(); r != nil {
@@ -126,7 +126,6 @@ func (c *Client) write() {
 func (c *Client) SendMsg(msg []byte) {
 
 	if c == nil {
-
 		return
 	}
 
@@ -144,7 +143,7 @@ func (c *Client) close() {
 	close(c.Send)
 }
 
-// 用户登录
+// Login 用户登录
 func (c *Client) Login(appId uint32, userId string, loginTime uint64) {
 	c.AppId = appId
 	c.UserId = userId
@@ -169,7 +168,7 @@ func (c *Client) IsHeartbeatTimeout(currentTime uint64) (timeout bool) {
 	return
 }
 
-// 是否登录了
+// IsLogin 是否登录了
 func (c *Client) IsLogin() (isLogin bool) {
 
 	// 用户登录了

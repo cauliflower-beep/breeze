@@ -30,7 +30,7 @@ func PingController(client *Client, seq string, message []byte) (code uint32, ms
 	return
 }
 
-// 用户登录
+// LoginController 用户登录
 func LoginController(client *Client, seq string, message []byte) (code uint32, msg string, data interface{}) {
 
 	code = common.OK
@@ -94,7 +94,7 @@ func LoginController(client *Client, seq string, message []byte) (code uint32, m
 	return
 }
 
-// 心跳接口
+// HeartbeatController 心跳接口
 func HeartbeatController(client *Client, seq string, message []byte) (code uint32, msg string, data interface{}) {
 
 	code = common.OK

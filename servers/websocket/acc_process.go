@@ -1,10 +1,3 @@
-/**
- * Created by GoLand.
- * User: link1st
- * Date: 2019-07-27
- * Time: 14:38
- */
-
 package websocket
 
 import (
@@ -23,7 +16,7 @@ var (
 	handlersRWMutex sync.RWMutex
 )
 
-// 注册
+// Register 注册websocket处理函数
 func Register(key string, value DisposeFunc) {
 	handlersRWMutex.Lock()
 	defer handlersRWMutex.Unlock()
@@ -41,7 +34,7 @@ func getHandlers(key string) (value DisposeFunc, ok bool) {
 	return
 }
 
-// 处理数据
+// ProcessData 处理客户端数据
 func ProcessData(client *Client, message []byte) {
 
 	fmt.Println("处理数据", client.Addr, string(message))
