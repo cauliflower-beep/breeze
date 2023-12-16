@@ -768,29 +768,3 @@ html {
     padding-right: 10px;
   }
 }
-
-/*****************************输入框***************************/
-.input-container {
-  display: flex;
-  max-width: 300px; /* 设置输入框的最大宽度，可以根据需要调整 */
-  margin: auto; /* 居中显示 */
-}
-
-input[type="text"] {
-  flex: 1; /* 让输入框占据剩余的空间 */
-  padding: 10px; /* 设置输入框的内边距 */
-}
-
-input[type="submit"] {
-  padding: 10px;
-  cursor: pointer;
-  background-color: #3498db; /* 初始颜色 */
-  color: #fff; /* 文本颜色 */
-  border: none;
-  border-radius: 5px;
-  margin-left: 5px; /* 为按钮和输入框之间添加一些间距 */
-}
-
-input[type="submit"]:hover {
-  background-color: #2980b9; /* 鼠标悬停时的颜色 */
-}
