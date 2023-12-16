@@ -1,20 +1,24 @@
 # Breeze
 
-一个基于`websocket`，单台机器支持百万连接的分布式聊天(IM)系统。
+一个基于`websocket`协议，单机支持百万连接的分布式聊天(IM)系统。可以`水平部署`，程序内部使用`grpc协议`相互通讯。
 
-如它的名字，带给你如沐春风的感觉。
+如它的名字，带给你如沐春风的感觉~
 
-使用 golang 实现 websocket 通讯，单机可以支持百万连接，使用gin框架、nginx负载、可以水平部署、程序内部相互通讯、使用grpc通讯协议。
+相关技术栈：
 
-文本从介绍webSocket是什么开始，然后开始介绍这个项目，以及在Nginx中配置域名做webSocket的转发，然后介绍如何搭建一个`分布式系统`。
+- gin框架
+- nginx负载均衡
+- `grpc协议`
+
+本文从`webSocket`是什么开始，逐步展开介绍这个项目。
+
+最终我们将搭建一个`分布式系统`，在Nginx中配置域名做`webSocket`的转发。
 
 
 ## 1、项目说明
-#### 1.1 goWebSocket
+#### 1.1 系统架构
 
-本文将介绍如何实现一个基于websocket聊天(IM)分布式系统。
-
-- 项目中webSocket使用的架构图
+整个项目的架构如图所示：
 ![网站架构图](.\img\网站架构图.png)
 
 #### 1.2 项目体验
@@ -23,80 +27,76 @@
 - 打开连接以后进入聊天界面
 - 多人群聊可以同时打开两个窗口
 
-## 2、介绍webSocket
+## 2、webSocket
 ### 2.1 webSocket 是什么
 WebSocket 协议在2008年诞生，2011年成为国际标准。所有浏览器都已经支持了。
 
 它的最大特点就是，`服务器可以主动向客户端推送信息`，`客户端也可以主动向服务器发送信息`，是真正的`双向平等对话`，属于服务器推送技术的一种。
 
-- HTTP和WebSocket在通讯过程的比较
-![HTTP协议和WebSocket比较](http://img.91vh.com/img/HTTP%E5%8D%8F%E8%AE%AE%E5%92%8CWebSocket%E6%AF%94%E8%BE%83.png)
+>  HTTP和WebSocket在通讯过程的比较
 
-- HTTP和webSocket都支持配置证书，`ws://` 无证书 `wss://` 配置证书的协议标识
-![HTTP协议和WebSocket比较](http://img.91vh.com/img/HTTP%E5%8D%8F%E8%AE%AE%E5%92%8CWebSocket%E6%AF%94%E8%BE%83.jpeg)
+![](.\img\HTTP协议和WebSocket比较.png)
+
+> HTTP和webSocket都支持配置证书，`ws://` 无证书 `wss://` 配置证书的协议标识
+
+![](.\img\HTTP协议和WebSocket比较.jpeg)
 
 ### 2.2 webSocket的兼容性
-- 浏览器的兼容性，开始支持webSocket的版本
+> 主流浏览器开始支持webSocket的版本
 
-![浏览器开始支持webSocket的版本](http://img.91vh.com/img/%E6%B5%8F%E8%A7%88%E5%99%A8%E5%BC%80%E5%A7%8B%E6%94%AF%E6%8C%81webSocket%E7%9A%84%E7%89%88%E6%9C%AC.jpeg)
+![](.\img\浏览器开始支持webSocket的版本.jpeg)
 
-- 服务端的支持
+> 服务端编程语言
 
-golang、java、php、node.js、python、nginx 都有不错的支持
+golang、java、php、node.js、python、nginx 都有不错的支持。
 
-- Android和IOS的支持
+> Android和IOS的支持
 
-Android可以使用java-webSocket对webSocket支持
-
-iOS 4.2及更高版本具有WebSockets支持
+Android可以使用`java-webSocket`支持；iOS 4.2及更高版本支持。
 
 ### 2.3 为什么要用webSocket
-- `从业务上出发，需要一个主动通达客户端的能力`
-> 目前大多数的请求都是使用HTTP，都是由客户端发起一个请求，有服务端处理，然后返回结果，不可以服务端主动向某一个客户端主动发送数据 
+从业务上出发，需要一个`主动通达客户端的能力`。
 
-![服务端处理一个请求](http://img.91vh.com/img/%E6%9C%8D%E5%8A%A1%E7%AB%AF%E5%A4%84%E7%90%86%E4%B8%80%E4%B8%AA%E8%AF%B7%E6%B1%82.jpeg)
-- 大多数场景我们需要主动通知用户，如:聊天系统、用户完成任务主动告诉用户、一些运营活动需要通知到在线的用户
-- 可以获取用户在线状态
-- 在没有长连接的时候通过客户端主动轮询获取数据
-- 可以通过一种方式实现，多种不同平台(H5/Android/IOS)去使用
+目前大多数的请求都是使用`HTTP`通信，由客户端发起一个请求，经过服务端处理，然后返回结果；服务端不能主动向某一个客户端主动发送数据 。
+
+![](.\img\服务端处理一个请求.jpeg)
+
+这会造成很多局限性，因为很多场景下，我们需要服务端能够主动通知用户。例如：聊天系统、用户完成任务主动通知、一些运营活动需要通知到在线的用户。
+
+选择`webScoket`这个真正的`全双工的长连接`，可以很方便的实现上述需求。除此之外还有一些其他的优点：
+
+- 可以获取用户在线状态；
+- 可以通过一种方式实现，多种不同平台(H5/Android/IOS)去使用。
+
+如果用HTTP协议，就需要客户端主动轮询获取数据。
 
 ### 2.4 webSocket建立过程
-- `客户端先发起升级协议的请求`
+> 客户端发起`升级协议`的请求
 
-客户端发起升级协议的请求，采用标准的HTTP报文格式，在报文中添加头部信息 
+客户端发起`升级协议`的请求，采用标准的`HTTP报文格式`，在报文中添加头部信息 ：
 
-`Connection: Upgrade`表明连接需要升级
-
-`Upgrade: websocket`需要升级到 websocket协议
-
-`Sec-WebSocket-Version: 13` 协议的版本为13
-
-`Sec-WebSocket-Key: I6qjdEaqYljv3+9x+GrhqA==` 这个是base64 encode 的值，是浏览器随机生成的，与服务器响应的 `Sec-WebSocket-Accept`对应
-
-```
+```http
 # Request Headers
-Connection: Upgrade
-Host: im.91vh.com
-Origin: http://im.91vh.com
-Pragma: no-cache
-Sec-WebSocket-Extensions: permessage-deflate; client_max_window_bits
+# 连接需要升级
+Connection: Upgrade 
+# 浏览器随机生成一个base64编码的值 与服务器响应的 Sec-WebSocket-Accept对应
 Sec-WebSocket-Key: I6qjdEaqYljv3+9x+GrhqA==
-Sec-WebSocket-Version: 13
-Upgrade: websocket
+# 协议版本为13
+Sec-WebSocket-Version: 13 
+# 需要升级到 websocket 协议
+Upgrade: websocket 
 ```
 
-![浏览器 Network](http://img.91vh.com/img/%E6%B5%8F%E8%A7%88%E5%99%A8%20Network.png)
+![](.\img\浏览器 Network.png)
 
-- `服务器响应升级协议`
+> 服务器响应升级协议
 
-服务端接收到升级协议的请求，如果服务端支持升级协议会做如下响应
+服务端接收到升级协议的请求，如果支持升级协议，就会做如下响应：
 
-返回: 
-
-`Status Code: 101 Switching Protocols` 表示支持切换协议
-
-```
+```http
 # Response Headers
+# 表示支持切换协议
+Status Code: 101 Switching Protocols
 Connection: upgrade
 Date: Fri, 09 Aug 2019 07:36:59 GMT
 Sec-WebSocket-Accept: mB5emvxi2jwTUhDdlRtADuBax9E=
@@ -104,40 +104,35 @@ Server: nginx/1.12.1
 Upgrade: websocket
 ```
 
-- `升级协议完成以后，客户端和服务器就可以相互发送数据`
+> 协议升级完成，客户端和服务器可以相互发送数据
 
-![websocket接收和发送数据](http://img.91vh.com/img/websocket%E6%8E%A5%E6%94%B6%E5%92%8C%E5%8F%91%E9%80%81%E6%95%B0%E6%8D%AE.png)
+![](.\img\websocket接收和发送数据.png)
 
 ## 3、如何实现基于webSocket的长连接系统
 
 ### 3.1 使用go实现webSocket服务端
 
 #### 3.1.1 启动端口监听
-- websocket需要监听端口，所以需要在`golang` 程序的 `main` 函数中用协程的方式去启动程序
-- **main.go** 实现启动
+websocket需要`监听端口`，所以需要在`golang` 程序的 `main` 函数中，用`goroutine`的方式去启动程序：
 
-```
+```go
+// main.go
 go websocket.StartWebSocket()
-```
-- **init_acc.go** 启动程序
 
-```
-// 启动程序
+// init_acc.go
 func StartWebSocket() {
 	http.HandleFunc("/acc", wsPage)
 	http.ListenAndServe(":8089", nil)
 }
 ```
-
 #### 3.1.2 升级协议
-- 客户端是通过http请求发送到服务端，我们需要对http协议进行升级为websocket协议
-- 对http请求协议进行升级 golang 库[gorilla/websocket](https://github.com/gorilla/websocket) 已经做得很好了，我们直接使用就可以了
-- 在实际使用的时候，`建议每个连接使用两个协程处理客户端请求数据和向客户端发送数据`，虽然开启协程会占用一些内存，但是读取分离，减少收发数据堵塞的可能
-- **init_acc.go**
+前文知道，客户端通过http请求发送到服务端，我们需要将http协议进行升级为websocket协议。这一步 golang 库[gorilla/websocket](https://github.com/gorilla/websocket) 已经做得很好了，我们可以直接使用。
 
-```
+建议`每个连接使用两个协程处理客户端请求数据和向客户端发送数据`，虽然开启协程会占用一些内存，但是读取分离，减少收发数据堵塞的可能。
+
+```go
+// init_acc.go
 func wsPage(w http.ResponseWriter, req *http.Request) {
-
 	// 升级协议
 	conn, err := (&websocket.Upgrader{CheckOrigin: func(r *http.Request) bool {
 		fmt.Println("升级协议", "ua:", r.Header["User-Agent"], "referer:", r.Header["Referer"])
@@ -146,7 +141,6 @@ func wsPage(w http.ResponseWriter, req *http.Request) {
 	}}).Upgrade(w, req, nil)
 	if err != nil {
 		http.NotFound(w, req)
-
 		return
 	}
 
@@ -164,21 +158,30 @@ func wsPage(w http.ResponseWriter, req *http.Request) {
 ```
 
 #### 3.1.3 客户端连接的管理
-- 当前程序有多少用户连接，还需要对用户广播的需要，这里我们就需要一个管理者(clientManager)，处理这些事件:
-- 记录全部的连接、登录用户的可以通过 **appId+uuid** 查到用户连接
-- 使用map存储，就涉及到多协程并发读写的问题，所以需要加读写锁
-- 定义四个channel ，分别处理客户端建立连接、用户登录、断开连接、全员广播事件
+当前服务器有多少用户连接，需要对在线用户进行广播。我们可以创建一个管理员(clientManager)来处理：
 
-```
+- 记录全部的客户端`连接`
+
+  登录用户的可以通过 **appId + uuid** 查到`用户连接`；
+
+- 记录全部登录的`用户`  todo？
+
+  使用map存储，涉及到`多goroutine并发读写`的问题，需要加读写锁；
+
+- `四个基本channel` 
+
+  分别处理客户端`建立连接`、`用户登录`、`断开连接`、`全员广播`事件。
+
+```go
 // 连接管理
 type ClientManager struct {
-	Clients     map[*Client]bool   // 全部的连接
+	Clients     map[*Client]bool   // 全部的客户端连接
 	ClientsLock sync.RWMutex       // 读写锁
 	Users       map[string]*Client // 登录的用户 // appId+uuid
 	UserLock    sync.RWMutex       // 读写锁
-	Register    chan *Client       // 连接连接处理
-	Login       chan *login        // 用户登录处理
-	Unregister  chan *Client       // 断开连接处理程序
+	Register    chan *Client       // 建立连接
+	Login       chan *login        // 用户登录
+	Unregister  chan *Client       // 断开连接
 	Broadcast   chan []byte        // 广播 向全部成员发送数据
 }
 
@@ -192,29 +195,28 @@ func NewClientManager() (clientManager *ClientManager) {
 		Unregister: make(chan *Client, 1000),
 		Broadcast:  make(chan []byte, 1000),
 	}
-
 	return
 }
 ```
 
 #### 3.1.4 注册客户端的socket的写的异步处理程序
-- 防止发生程序崩溃，所以需要捕获异常
-- 为了显示异常崩溃位置这里使用`string(debug.Stack())`打印调用堆栈信息
-- 如果写入数据失败了，可能连接有问题，就关闭连接
-- **client.go**
 
-```
-// 向客户端写数据
+- 如果
+
+```go
+// client.go 向客户端写数据
 func (c *Client) write() {
 	defer func() {
+        // 防止发生程序崩溃，需要捕获异常
 		if r := recover(); r != nil {
+            // 打印调用堆栈信息，以显示异常崩溃位置
 			fmt.Println("write stop", string(debug.Stack()), r)
-
 		}
 	}()
 
 	defer func() {
 		clientManager.Unregister <- c
+        // 写数据失败，连接可能存在问题，关闭连接
 		c.Socket.Close()
 		fmt.Println("Client发送数据 defer", c)
 	}()
@@ -223,25 +225,18 @@ func (c *Client) write() {
 		select {
 		case message, ok := <-c.Send:
 			if !ok {
-				// 发送数据错误 关闭连接
 				fmt.Println("Client发送数据 关闭连接", c.Addr, "ok", ok)
-
 				return
 			}
-
-			c.Socket.WriteMessage(websocket.TextMessage, message)
+	c.Socket.WriteMessage(websocket.TextMessage, message)
 		}
 	}
 }
 ```
 
 #### 3.1.5 注册客户端的socket的读的异步处理程序
-- 循环读取客户端发送的数据并处理
-- 如果读取数据失败了，关闭channel
-- **client.go**
-
-```
-// 读取客户端数据
+```golang
+// client.go 读取客户端数据
 func (c *Client) read() {
 	defer func() {
 		if r := recover(); r != nil {
@@ -250,15 +245,16 @@ func (c *Client) read() {
 	}()
 
 	defer func() {
+        // 读数据失败，关闭channel
 		fmt.Println("读取客户端数据 关闭send", c)
 		close(c.Send)
 	}()
 
+    // 循环读取客户端发送的数据并处理
 	for {
 		_, message, err := c.Socket.ReadMessage()
 		if err != nil {
 			fmt.Println("读取客户端数据 错误", c.Addr, err)
-
 			return
 		}
 
@@ -270,24 +266,31 @@ func (c *Client) read() {
 ```
 
 #### 3.1.6 接收客户端数据并处理
-- 约定发送和接收请求数据格式，为了js处理方便，采用了`json`的数据格式发送和接收数据(人类可以阅读的格式在工作开发中使用是比较方便的)
 
-- 登录发送数据示例:
-```
+为了`js处理方便`，采用了`json`的数据格式发送和接收数据。人类可以阅读的格式在工作开发中使用是比较方便的。我们约定`发送`和`接收请求数据格式`如下。
+
+- 登录发送数据
+
+```json
 {"seq":"1565336219141-266129","cmd":"login","data":{"userId":"马远","appId":101}}
 ```
-- 登录响应数据示例:
-```
+- 登录响应数据
+```json
 {"seq":"1565336219141-266129","cmd":"login","response":{"code":200,"codeMsg":"Success","data":null}}
 ```
-- websocket是双向的数据通讯，可以连续发送，如果发送的数据需要服务端回复，就需要一个**seq**来确定服务端的响应是回复哪一次的请求数据
-- cmd 是用来确定动作，websocket没有类似于http的url,所以规定 cmd 是什么动作
-- 目前的动作有:login/heartbeat 用来发送登录请求和连接保活(长时间没有数据发送的长连接容易被浏览器、移动中间商、nginx、服务端程序断开)
-- 为什么需要AppId,UserId是表示用户的唯一字段，设计的时候为了做成通用性，设计AppId用来表示用户在哪个平台登录的(web、app、ios等)，方便后续扩展
+websocket是`双向的数据通讯`，可以连续发送。如果发送的数据需要服务端回复，就需要一个`seq`来确定服务端的响应是回复哪一次的请求数据。
 
-- **request_model.go** 约定的请求数据格式
+`cmd` 是用来确定动作，websocket没有类似于http的url，所以规定 cmd 是什么动作。目前的动作有：
 
-```
+- `login` 发送登录请求；
+- `heartbeat`连接保活。长时间没有数据发送的长连接容易被浏览器、移动中间商、nginx、服务端程序断开。
+
+`AppId&UserId`是表示用户的唯一字段，设计的时候为了做成通用性，设计`AppId用来表示用户在哪个平台登录的`(web、app、ios等)，方便后续扩展。
+
+相关数据格式的代码实现如下：
+
+```go
+// request_model.go
 /************************  请求数据  **************************/
 // 通用请求数据格式
 type Request struct {
@@ -307,11 +310,8 @@ type Login struct {
 type HeartBeat struct {
 	UserId string `json:"userId,omitempty"`
 }
-```
 
-- **response_model.go**
-
-```
+// response_model.go
 /************************  响应数据  **************************/
 type Head struct {
 	Seq      string    `json:"seq"`      // 消息的Id
@@ -324,17 +324,15 @@ type Response struct {
 	CodeMsg string      `json:"codeMsg"`
 	Data    interface{} `json:"data"` // 数据 json
 }
-
 ```
 
 
 #### 3.1.7 使用路由的方式处理客户端的请求数据
 
-- 使用路由的方式处理由客户端发送过来的请求数据
-- 以后添加请求类型以后就可以用类是用http相类似的方式(router-controller)去处理
-- **acc_routers.go**
+我们使用`路由`的方式处理由客户端发送过来的请求数据，以后添加请求类型，就可以用和http类似的方式(router-controller)去处理。
 
-```
+```go
+// acc_routers.go
 // Websocket 路由
 func WebsocketInit() {
 	websocket.Register("login", websocket.LoginController)
@@ -343,12 +341,15 @@ func WebsocketInit() {
 ```
 
 #### 3.1.8 防止内存溢出和Goroutine不回收
-- 1. 定时任务清除超时连接
-没有登录的连接和登录的连接6分钟没有心跳则断开连接
 
-**client_manager.go**
+我们采取以下措施来保障系统的健壮性。
 
-```
+> 创建定时任务清除超时连接
+
+没有登录的连接和登录的连接6分钟没有心跳则断开连接，`防止内存溢出`。
+
+```go
+// client_manager.go
 // 定时清理超时连接
 func ClearTimeoutConnections() {
     currentTime := uint64(time.Now().Unix())
@@ -363,41 +364,44 @@ func ClearTimeoutConnections() {
 }
 ```
 
-- 2. 读写的Goroutine有一个失败，则相互关闭
-`write()`Goroutine写入数据失败，关闭`c.Socket.Close()`连接，会关闭`read()`Goroutine
-`read()`Goroutine读取数据失败，关闭`close(c.Send)`连接，会关闭`write()`Goroutine
+> 读写的Goroutine有一个失败，则`相互关闭`
 
-- 3. 客户端主动关闭
-关闭读写的Goroutine
-从`ClientManager`删除连接
+`write`Goroutine写入数据失败，关闭`c.Socket.Close()`连接，会关闭`read()`Goroutine；
+`read()`Goroutine读取数据失败，关闭`close(c.Send)`连接，会关闭`write()`Goroutine。
 
-- 4. 监控用户连接、Goroutine数
-十个内存溢出有九个和Goroutine有关
-添加一个http的接口，可以查看系统的状态，防止Goroutine不回收
+> 及时从`ClientManager`删除连接
+
+客户端主动关闭时，服务端关闭读写的Goroutine，从`ClientManager`删除连接。
+
+> 监控用户连接、Goroutine数
+
+十个内存溢出有九个和Goroutine有关。添加一个http接口，可以查看系统的状态，防止Goroutine不回收。
 [查看系统状态](http://im.91vh.com/system/state?isDebug=true)
 
-- 5. Nginx 配置不活跃的连接释放时间，防止忘记关闭的连接
+> Nginx 配置不活跃的连接释放时间
 
-- 6. 使用 pprof 分析性能、耗时
+防止忘记关闭的连接。
+
+> 使用 pprof 分析性能、耗时
 
 ### 3.2 使用javaScript实现webSocket客户端
 #### 3.2.1 启动并注册监听程序
-- js 建立连接，并处理连接成功、收到数据、断开连接的事件处理
-
-```
+```js
+// 创建链接
 ws = new WebSocket("ws://127.0.0.1:8089/acc");
 
- 
 ws.onopen = function(evt) {
   console.log("Connection open ...");
 };
  
+// 收到数据
 ws.onmessage = function(evt) {
   console.log( "Received Message: " + evt.data);
   data_array = JSON.parse(evt.data);
   console.log( data_array);
 };
  
+// 断开连接
 ws.onclose = function(evt) {
   console.log("Connection closed.");
 };
@@ -406,35 +410,34 @@ ws.onclose = function(evt) {
 
 
 #### 3.2.2 发送数据
-- 需要注意:连接建立成功以后才可以发送数据
-- 建立连接以后由客户端向服务器发送数据示例
+`连接建立成功`以后才可以发送数据。
 
-```
-登录:
+```js
+// 登录:
 ws.send('{"seq":"2323","cmd":"login","data":{"userId":"11","appId":101}}');
 
-心跳:
+// 心跳:
 ws.send('{"seq":"2324","cmd":"heartbeat","data":{}}');
 
-ping 查看服务是否正常:
+// ping 查看服务是否正常:
 ws.send('{"seq":"2325","cmd":"ping","data":{}}');
 
-关闭连接:
+// 关闭连接:
 ws.close();
 ```
 
 ## 3.3 发送消息
 ### 3.3.1 文本消息
 
-客户端只要知道发送用户是谁，还有内容就可以显示文本消息，这里我们重点关注一下数据部分
+客户端只要知道`发送用户是谁`，还有`内容`就可以显示文本消息。这里我们重点关注一下数据部分。
 
-target：定义接收的目标，目前未设置
+- `target`：定义接收的目标，目前未设置
 
-type：消息的类型，text 文本消息 img 图片消息 
+- `type`：消息的类型，text 文本消息； img 图片消息 
 
-msg：文本消息内容
+- `msg`：文本消息内容
 
-from：消息的发送者
+- `from`：消息的发送者
 
 文本消息的结构:
 
@@ -449,24 +452,24 @@ from：消息的发送者
       "target": "",
       "type": "text",
       "msg": "hello",
-      "from": "马超"
+      "from": "风间"
     }
   }
 }
 ```
 
-这样一个文本消息的结构就设计完成了，客户端在接收到消息内容就可以展现到 IM 界面上
+这样一个文本消息的结构就设计完成了。客户端接收到消息内容，就可以展现到 IM 界面上。
 
 ### 3.3.2 图片和语言消息
 
-发送图片消息，发送消息者的客户端需要先把图片上传到文件服务器，上传成功以后获得图片访问的 URL，然后由发送消息者的客户端需要将图片 URL 发送到 gowebsocket，gowebsocket 图片的消息格式发送给目标客户端，消息接收者客户端接收到图片的 URL 就可以显示图片消息。
+发送图片消息，发送消息者的客户端需要先把图片上传到`文件服务器`，上传成功以后获得图片访问的 `URL`，然后发送消息者的客户端需要将图片 URL 发送到 gowebsocket，gowebsocket 图片的消息格式发送给目标客户端，消息接收者客户端接收到图片的 URL 就可以显示图片消息。
 
 图片消息的结构:
 
-```
+```json
 {
   "type": "img",
-  "from": "马超",
+  "from": "风间",
   "url": "http://91vh.com/images/home_logo.png",
   "secret": "消息鉴权 secret",
   "size": {
@@ -476,24 +479,19 @@ from：消息的发送者
 }
 ```
 
-语言消息、和视频消息和图片消息类似，都是先把文件上传服务器，然后通过 gowebsocket 传递文件的 URL，需要注意的是部分消息涉及到隐私的文件，文件访问的时候需要做好鉴权信息，不能让非接收用户也能查看到别人的消息内容。
+`语音消息`、`视频消息`和图片消息类似，都是先把文件上传服务器，然后通过 gowebsocket 传递文件的 URL，需要注意的是部分消息涉及到隐私的文件，文件访问的时候需要做好鉴权信息，不能让非接收用户也能查看到别人的消息内容。
 
 ## 4、goWebSocket 项目
 ### 4.1 项目说明
-- 本项目是基于webSocket实现的分布式IM系统
-- 客户端随机分配用户名，所有人进入一个聊天室，实现群聊的功能
-- 单台机器(24核128G内存)支持百万客户端连接
-- 支持水平部署，部署的机器之间可以相互通讯
+本项目是基于webSocket实现的分布式IM系统。
 
-- 项目架构图
-![网站架构图](http://img.91vh.com/img/%E7%BD%91%E7%AB%99%E6%9E%B6%E6%9E%84%E5%9B%BE.png)
+客户端随机分配昵称（用户名），所有人进入一个聊天室，实现群聊的功能。单台机器(24核128G内存)支持百万客户端连接，支持水平部署，部署的机器之间可以相互通讯。
 
 ### 4.2 项目依赖
 
-- 本项目只需要使用 redis 和 golang 
-- 本项目使用govendor管理依赖，克隆本项目就可以直接使用
+本项目只需要使用 `redis` 和` golang `即可启动。使用govendor管理依赖，克隆本项目就可以直接使用。
 
-```
+```http
 # 主要使用到的包
 github.com/gin-gonic/gin@v1.4.0
 github.com/redis/go-redis/v9
@@ -505,16 +503,16 @@ github.com/golang/protobuf
 
 
 ### 4.3 项目启动 
-- 克隆项目
+克隆项目
 
-```
+```shell
 git clone git@github.com:link1st/gowebsocket.git
 # 或
 git clone https://github.com/link1st/gowebsocket.git
 ```
-- 修改项目配置
+修改项目配置
 
-```
+```shell
 cd gowebsocket
 cd config
 mv app.yaml.example app.yaml
@@ -523,9 +521,9 @@ vim app.yaml
 # 返回项目目录，为以后启动做准备
 cd ..
 ```
-- 配置文件说明
+配置文件说明
 
-```
+```yaml
 app:
   logFile: log/gin.log # 日志文件位置
   httpPort: 8080 # http端口
@@ -543,20 +541,26 @@ redis:
   minIdleConns: 30
 ```
 
-- 启动项目
+启动项目
 
-```
+```go
 go run main.go
 ```
 
-- 进入IM聊天地址
+进入IM聊天地址
 [http://127.0.0.1:8080/home/index](http://127.0.0.1:8080/home/index)
-- 到这里，就可以体验到基于webSocket的IM系统
+
+到这里，就可以体验到基于webSocket的IM系统。
+
+注意！本地启动测试的时候需要`关闭代理`，否则连接可能会创建失败。
 
 #### 4.4 接口文档 
-###### 4.4.1.1 接口说明
-##### 4.4.1 HTTP接口文档
-- 在接口开发和接口文档使用的过程中，规范开发流程，减少沟通成本，所以约定一下接口开发流程和文档说明
+##### 4.4.1接口说明
+
+###### 4.4.1.1 HTTP接口文档
+
+在接口开发和接口文档使用的过程中，`规范开发流程`，可有效减少沟通成本。所以约定一下接口开发流程和文档说明。
+
 - 接口地址
 
  线上:http://im.91vh.com
@@ -607,7 +611,7 @@ go run main.go
     "data": {
         "userCount": 1,
         "userList": [
-            "黄帝"
+            "正南"
         ]
     }
 }
@@ -642,7 +646,7 @@ go run main.go
     "msg": "Success",
     "data": {
         "online": true,
-        "userId": "黄帝"
+        "userId": "正南"
     }
 }
 ```
@@ -656,7 +660,7 @@ go run main.go
 |  参数   |  必填   |  类型  |  说明   |  示例   |
 | :----: | :----: | :----: | :----: | :----: |
 | appId   |   是    | uint32 | appId/房间Id |   101      |
-| userId   |   是    | string | 用户id |   黄帝      |
+| userId   |   是    | string | 用户id |   正南 |
 | msgId   |   是    | string | 消息Id |   避免重复发送      |
 | message   |   是    | string | 消息内容 |   hello      |
 
@@ -690,7 +694,7 @@ go run main.go
 |  参数   |  必填   |  类型  |  说明   |  示例   |
 | :----: | :----: | :----: | :----: | :----: |
 | appId   |   是    | uint32 | appId/房间Id |   101      |
-| userId   |   是    | string | 用户id |   黄帝      |
+| userId   |   是    | string | 用户id |   正南    |
 | msgId   |   是    | string | 消息Id |   避免重复发送      |
 | message   |   是    | string | 消息内容 |   hello      |
 

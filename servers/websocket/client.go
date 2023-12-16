@@ -95,9 +95,10 @@ func (c *Client) read() {
 // write 向客户端写数据
 func (c *Client) write() {
 	defer func() {
+		// 防止程序崩溃，需要捕获异常
 		if r := recover(); r != nil {
+			// 打印调用堆栈信息，以显示异常崩溃位置
 			fmt.Println("write stop", string(debug.Stack()), r)
-
 		}
 	}()
 
@@ -111,7 +112,7 @@ func (c *Client) write() {
 		select {
 		case message, ok := <-c.Send:
 			if !ok {
-				// 发送数据错误 关闭连接
+				// 写数据失败，连接可能存在问题，关闭连接
 				fmt.Println("Client发送数据 关闭连接", c.Addr, "ok", ok)
 
 				return
