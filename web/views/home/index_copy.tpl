@@ -304,13 +304,7 @@
         }
 
 
-        function sendId() {
-            let timeStamp = currentTime();
-            let randId = randomNumber(100000, 999999);
-            let id = timeStamp + "-" + randId;
-
-            return id
-        }
+        ///////////////sendId
 
         function msg(name, msg) {
             let html = '<div class="admin-group">' +
@@ -362,62 +356,13 @@
         }
 
 
-        //////////////////////////////////////////////////////////
-        // 连接webSocket
-        ws = new WebSocket("ws://{{ .webSocketUrl }}/acc");
+        ///////////////////////////ws onopen
 
-        ws.onopen = function(evt) {
-            console.log("Connection open ...");
+        /////////////////////////////ws onMessage
 
-            // // 连接以后
-            // person = prompt("请输入你的名字", "hello-" + currentTime());
-            // if (person != null) {
-            //     console.log("用户准备登陆:" + person);
-            //     ws.send('{"seq":"' + sendId() + '","cmd":"login","data":{"userId":"' + person + '","appId":'+ appId +'}}');
-            // }
+        ////////////////////////////ws onclose
 
-           person =  getName();
-           // person = randomNumber(10000, 99999)
-            console.log("用户准备登陆:" + person);
-            ws.send('{"seq":"' + sendId() + '","cmd":"login","data":{"userId":"' + person + '","appId":'+ appId +'}}');
-
-            // 定时心跳
-            setInterval(heartbeat, 30 * 1000)
-        };
-        ///////////////////////////////////////////////////////////
-
-        // 收到消息
-        ws.onmessage = function(evt) {
-            console.log("Received Message: " + evt.data);
-            data_array = JSON.parse(evt.data);
-            console.log(data_array);
-
-            if (data_array.cmd === "msg") {
-                data = data_array.response.data
-                addChatWith(msg(data.from, data.msg))
-            } else if (data_array.cmd === "enter") {
-                data = data_array.response.data
-                addChatWith(msg("管理员", "欢迎 " + data.from + " 加入~"))
-                addUserList(data.from)
-            } else if (data_array.cmd === "exit") {
-                data = data_array.response.data
-                addChatWith(msg("管理员", data.from + " 悄悄的离开了~"))
-                delUserList(data.from)
-            }
-
-
-        };
-
-        ws.onclose = function(evt) {
-            console.log("Connection closed.");
-        };
-
-        // 心跳
-        function heartbeat() {
-            console.log("定时心跳:" + person);
-            ws.send('{"seq":"' + sendId() + '","cmd":"heartbeat","data":{}}');
-
-        }
+        /////////////////heartbeat
 
         // 点击按钮事件
         // $("button").click(function() {
@@ -484,14 +429,7 @@
             });
         }
 
-        function getName(){
-            let names = ["小新","风间","妮妮","正南","阿呆","小白","美伢","广志","小绿","阿梅","园长","副园长","蜜琪","席林","大婶","卖豆腐der","阿豹","四郎","龙子","熊本的爷爷","九州的外公","阿银","玛丽","德朗","石阪","川口那小子","由美","书店老板","动感超人","钢达姆机器人","卖间九里代","玛丽莲","热藻椎造","小爱","小惠","小葵","小等","新子","上尾老师","黑矶","真伢","梦伢","风间麻麻","妮妮麻麻","正南麻麻","风间粑粑","妮妮粑粑","正南粑粑","小优","胆固醇麻醉","丽莎阿司匹林","厚子","厚美","厚司","中村","科长","部长","董事长","社长","史皮伯","魔法少女可爱P","叶月"];
-
-
-            var name = names[Math.floor(Math.random()*names.length)];
-
-            return name
-        }
+        /////////////////getName
         </script>
     </div>
 </body>
