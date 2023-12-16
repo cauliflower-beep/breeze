@@ -1,23 +1,18 @@
-/**
-* Created by GoLand.
-* User: link1st
-* Date: 2019-07-29
-* Time: 14:15
- */
-
 package task
 
 import "time"
 
 type TimerFunc func(interface{}) bool
 
-/**
- * 定时调用
- * @delay 首次延时
- * @tick  间隔
- * @fun   定时执行function
- * @param fun参数
- */
+// Timer
+//
+//	@Description:
+//	@param delay 首次延时
+//	@param tick 间隔
+//	@param fun 定时执行function
+//	@param param fun参数
+//	@param funcDefer
+//	@param paramDefer
 func Timer(delay, tick time.Duration, fun TimerFunc, param interface{}, funcDefer TimerFunc, paramDefer interface{}) {
 	go func() {
 		defer func() {

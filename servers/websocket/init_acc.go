@@ -50,16 +50,15 @@ func IsLocal(server *models.Server) (isLocal bool) {
 	return
 }
 
+// InAppIds 请求房间号是否包含在系统房间号中
 func InAppIds(appId uint32) (inAppId bool) {
 
 	for _, value := range appIds {
 		if value == appId {
 			inAppId = true
-
 			return
 		}
 	}
-
 	return
 }
 

@@ -22,6 +22,7 @@ func ExampleNewClient() {
 		MinIdleConns: viper.GetInt("redis.minIdleConns"),
 	})
 
+	// 测试redis服务是否正常启动、能够ping通
 	pong, err := client.Ping(context.Background()).Result()
 	fmt.Println("初始化redis:", pong, err)
 	// Output: PONG <nil>

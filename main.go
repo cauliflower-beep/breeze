@@ -18,10 +18,13 @@ import (
 )
 
 func main() {
+	// 配置初始化
 	initConfig()
 
+	// 初始化日志文件
 	initFile()
 
+	// 初始化redis
 	initRedis()
 
 	router := gin.Default()
@@ -44,7 +47,7 @@ func main() {
 	go open()
 
 	httpPort := viper.GetString("app.httpPort")
-	http.ListenAndServe(":"+httpPort, router)
+	_ = http.ListenAndServe(":"+httpPort, router)
 
 }
 
@@ -56,7 +59,7 @@ func initFile() {
 	// Logging to a file.
 	logFile := viper.GetString("app.logFile")
 	f, _ := os.Create(logFile)
-	gin.DefaultWriter = io.MultiWriter(f) // 将日志同时写入到控制台以及之前创建的日志文件中
+	gin.DefaultWriter = io.MultiWriter(f) // 将日志同时写入到控制台以及上面创建的日志文件中
 }
 
 func initConfig() {
@@ -82,10 +85,13 @@ func open() {
 	time.Sleep(1000 * time.Millisecond)
 
 	httpUrl := viper.GetString("app.httpUrl")
-	httpUrl = "http://" + httpUrl + "/home/index"
+	httpUrl = "http://" + httpUrl
+	index0 := httpUrl + "/home/index"
+	index2 := httpUrl + "/home/v2/index"
 
-	fmt.Println("访问页面体验:", httpUrl)
+	fmt.Printf("访问页面体验\n home_old:%s\nhome_v2:%s\n", index0, index2)
 
+	// 启动默认浏览器打开 home 主页
 	cmd := exec.Command("open", httpUrl)
-	cmd.Output()
+	_, _ = cmd.Output()
 }

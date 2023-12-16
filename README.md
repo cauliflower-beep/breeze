@@ -814,9 +814,9 @@ message GetUserListRsp {
 
 ## 5、webSocket项目Nginx配置
 ### 5.1 为什么要配置Nginx
-- 使用nginx实现内外网分离，对外只暴露Nginx的Ip(一般的互联网企业会在nginx之前加一层LVS做负载均衡)，减少入侵的可能
-- 支持配置 ssl 证书，使用 `wss` 的方式实现数据加密，减少数据被抓包和篡改的可能性
-- 使用Nginx可以利用Nginx的负载功能，前端再使用的时候只需要连接固定的域名，通过Nginx将流量分发了到不同的机器
+- 使用nginx实现`内外网分离`，对外只暴露Nginx的Ip(一般的互联网企业会在nginx之前加一层LVS做负载均衡)，减少入侵的可能；
+- 支持配置 ssl 证书，使用 `wss` 的方式实现数据加密，减少数据被抓包和篡改的可能性；
+- 使用Nginx可以利用Nginx的负载功能，前端再使用的时候只需要连接固定的域名，通过Nginx将流量分发了到不同的机器；
 - 同时我们也可以使用Nginx的不同的负载策略(轮询、weight、ip_hash)
 
 ### 5.2 nginx配置
@@ -824,7 +824,7 @@ message GetUserListRsp {
 - 一级目录**im.91vh.com/acc** 是给webSocket使用，是用nginx stream转发功能(nginx 1.3.31 开始支持，使用Tengine配置也是相同的)，转发到golang 8089 端口处理
 - 其它目录是给HTTP使用，转发到golang 8080 端口处理
 
-```
+```nginx
 upstream  go-im
 {
     server 127.0.0.1:8080 weight=1 max_fails=2 fail_timeout=10s;
@@ -875,14 +875,13 @@ server {
 ### 5.3 问题处理
 - 运行nginx测试命令，查看配置文件是否正确
 
-```
+```shell
 /link/server/tengine/sbin/nginx -t
-
 ```
 
 - 如果出现错误
 
-```
+```http
 nginx: [emerg] unknown "connection_upgrade" variable
 configuration file /link/server/tengine/conf/nginx.conf test failed
 ```
@@ -890,7 +889,7 @@ configuration file /link/server/tengine/conf/nginx.conf test failed
 - 处理方法
 - 在**nginx.com**添加
 
-```
+```nginx
 http{
 	fastcgi_temp_file_write_size 128k;
 ..... # 需要添加的内容
@@ -917,7 +916,7 @@ http{
 
 被压测服务器需要保持100W长连接，客户和服务器端是通过socket通讯的，每个连接需要建立一个socket，程序需要保持100W长连接就需要单个程序能打开100W个文件句柄
 
-```
+```shell
 # 查看系统默认的值
 ulimit -n
 # 设置最大打开文件数
@@ -926,7 +925,7 @@ ulimit -n 1000000
 
 通过修改配置文件的方式修改程序最大打开句柄数
 
-```
+```http
 root soft nofile 1040000
 root hard nofile 1040000
 
@@ -952,7 +951,7 @@ root hard core unlimited
 
 file-max的值需要大于limits设置的值
 
-```
+```shell
 # file-max 设置的值参考
 cat /proc/sys/fs/file-max
 12553500
@@ -962,7 +961,7 @@ cat /proc/sys/fs/file-max
 
 `vim /etc/sysctl.conf` 
 
-```
+```http
 # 配置参考
 net.ipv4.tcp_tw_reuse = 1
 net.ipv4.tcp_tw_recycle = 0
