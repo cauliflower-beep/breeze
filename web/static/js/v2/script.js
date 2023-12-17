@@ -28,6 +28,7 @@ const avatarMap = {
   "野原一家": "../../static/avatar/野原一家.jpg"
 };
 
+// 选择主题配色
 colors.forEach(color => {
   color.addEventListener('click', e => {
     colors.forEach(c => c.classList.remove('selected'));
@@ -45,12 +46,14 @@ msgSelected.forEach(msg => {
   });
 });
 
+// 切换夜间模式
 toggleButton.addEventListener('click', () => {
   document.body.classList.toggle('dark-mode');
 });
 /*********************************************************************/
-// 获取在线用户列表
-function getUserList() {
+// 聊天区域展示在线用户列表
+function membersOnline() {
+  // $ 是jQuery库的别名，用于访问jQuery提供的功能
   $.ajax({
     type: "GET",
     url: "http://" + homeData.httpUrl + "/user/list?appId=" + appId,
@@ -60,25 +63,34 @@ function getUserList() {
       if (data.code !== 200) {
         return false
       }
-      let music = "";
+      // 最多展示的在线成员数量
+      const maxMembers2Show = 5;
+
+      // 计数器
+      let createdMembers = 0;
+
       //i表示在data中的索引位置，n表示包含的信息的对象
       $.each(data.data.userList, function(i, n) {
-        // 添加在线成员头像
-        const avatarOnline = document.createElement('img');
-        avatarOnline.src = avatarMap[n]
-        avatarOnline.alt = n
-        chatAreaAvatarContainer.appendChild(avatarOnline)
-
-        // let
-        // let name = n
-        // if (n === member) {
-        //   name = name + "(自己)"
-        // }
-        // music += "<li id=\"" + n + "\">" + name + "</li>";
+        const existingMember = document.getElementById('memberOnline_' + n)
+        if (!existingMember && createdMembers < maxMembers2Show){
+          // 添加在线成员头像
+          const memberOnline = document.createElement('img');
+          memberOnline.classList.add('chat-area-profile')
+          memberOnline.src = avatarMap[n]
+          memberOnline.alt = n
+          // 使用id标识唯一的成员 避免点击按钮无限新增已存在的 memberOnline 后期新加一个登录界面 n 设定为不能重复
+          memberOnline.id = 'memberOnline_' + n
+          chatAreaAvatarContainer.appendChild(memberOnline)
+          // 更新计数器
+          createdMembers ++
+        }
       });
-      // $(".membernel-list-ul").append(music);
-
-      return false
+      if (data.data.userList.length > maxMembers2Show){
+        const remainingMembers = data.data.userList.length - maxMembers2Show;
+        const spanElement = document.createElement('span');
+        spanElement.textContent = '+' + remainingMembers;
+        chatAreaAvatarContainer.appendChild(spanElement);
+      }
     }
   });
 }
@@ -87,7 +99,7 @@ function getUserList() {
 msgGroup.forEach(group => {
   group.addEventListener('click', e => {
     // 请求服务器，获取当前群组内的全部在线用户
-    getUserList()
+    membersOnline()
   });
 });
 
