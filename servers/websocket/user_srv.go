@@ -134,23 +134,24 @@ func SendUserMessageLocal(appId uint32, userId string, data string) (sendResults
 	return
 }
 
-// 给全体用户发消息
+// SendUserMessageAll 通过 websocket 给所有在线童鞋发消息 server -> client
 func SendUserMessageAll(appId uint32, userId string, msgId, cmd, message string) (sendResults bool, err error) {
-	sendResults = true
 
+	sendResults = true
 	currentTime := uint64(time.Now().Unix())
+
+	// 获取全部在线童鞋所在的服务器
 	servers, err := cache.GetServerAll(currentTime)
 	if err != nil {
-		fmt.Println("给全体用户发消息", err)
-
+		fmt.Println("{Send msg to all friend failed}|", err)
 		return
 	}
 
 	for _, server := range servers {
-		if IsLocal(server) {
+		if IsLocal(server) { // 本地服务器
 			data := models.GetMsgData(userId, msgId, cmd, message)
 			AllSendMessages(appId, userId, data)
-		} else {
+		} else { // 集群中的其他服务器
 			grpcclient.SendMsgAll(server, msgId, appId, userId, cmd, message)
 		}
 	}

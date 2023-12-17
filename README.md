@@ -182,7 +182,7 @@ type ClientManager struct {
 	Register    chan *Client       // 建立连接
 	Login       chan *login        // 用户登录
 	Unregister  chan *Client       // 断开连接
-	Broadcast   chan []byte        // 广播 向全部成员发送数据
+	Broadcast   chan []byte        // 广播 向全部童鞋发送数据
 }
 
 // 初始化

@@ -110,6 +110,7 @@ func (c *Client) write() {
 
 	for {
 		select {
+		// 循环监听 一旦 c.Send 有数据写入，例如群发消息 websocket.SendUserMessageAll 就进入处理流程
 		case message, ok := <-c.Send:
 			if !ok {
 				// 写数据失败，连接可能存在问题，关闭连接
@@ -118,14 +119,13 @@ func (c *Client) write() {
 				return
 			}
 
-			c.Socket.WriteMessage(websocket.TextMessage, message)
+			_ = c.Socket.WriteMessage(websocket.TextMessage, message)
 		}
 	}
 }
 
 // SendMsg 发送数据
 func (c *Client) SendMsg(msg []byte) {
-
 	if c == nil {
 		return
 	}

@@ -73,7 +73,7 @@ function membersOnline() {
       if (data.code !== 200) {
         return false
       }
-      // 最多展示的在线成员数量
+      // 最多展示的在线童鞋数量
       const maxMembers2Show = 5;
 
       // 计数器
@@ -83,12 +83,12 @@ function membersOnline() {
       $.each(data.data.userList, function(i, n) {
         const existingMember = document.getElementById('memberOnline_' + n)
         if (!existingMember && createdMembers < maxMembers2Show){
-          // 添加在线成员头像
+          // 添加在线童鞋头像
           const memberOnline = document.createElement('img');
           memberOnline.classList.add('chat-area-profile')
           memberOnline.src = avatarMap[n]
           memberOnline.alt = n
-          // 使用id标识唯一的成员 避免点击按钮无限新增已存在的 memberOnline 后期新加一个登录界面 n 设定为不能重复
+          // 使用id标识唯一的童鞋 避免点击按钮无限新增已存在的 memberOnline 后期新加一个登录界面 n 设定为不能重复
           memberOnline.id = 'memberOnline_' + n
           chatAreaAvatarContainer.appendChild(memberOnline)
           // 更新计数器
@@ -112,7 +112,38 @@ msgGroup.forEach(group => {
     membersOnline()
   });
 });
+/*****************************聊天区消息封装***********************************/
+/* 这块儿的函数主要用于把name和msg封装成html结构，用来展示到聊天区*/
 
+// 聊天内容
+function buildMsgChat(name, msg) {
+  // 根据 name 的值确定外层 div 的类名
+  let msgBoxClass = (name === member) ? 'chat-msg owner' : 'chat-msg';
+  return '<div class="' + msgBoxClass + '">' +
+      // 童鞋信息 div 头像 + 消息时间
+      '<div class="chat-msg-profile">' +
+      '<img class="chat-msg-avatar" src="' + avatarMap[name] + '" alt="' + name + '">' +
+      '<div class="chat-msg-date">' + currentTime() + '</div>' +
+      '</div>' +
+      // 聊天内容展示区
+      '<div class="chat-msg-content">' +
+      '<div class="chat-msg-text">' + msg + '</div>' +
+      '</div>' +
+      '</div>'
+}
+
+// 提示类消息 例如"xxx进入了聊天室"
+function buildMsgNotice(name, msg) {
+  let html = '<div class="admin-group">' +
+      '<div class="admin-img" >' + name + '</div>' +
+      // '<img class="admin-img" src="http://localhost/public/img/aa.jpg" />'+
+      '<div class="admin-msg">' +
+      '<i class="triangle-admin"></i>' +
+      '<span class="admin-reply">' + msg + '</span>' +
+      '</div>' +
+      '</div>';
+  return html
+}
 /****************************** websocket连接相关 *******************************************/
 function getName(){
   // let names = ["小新","风间","妮妮","正南","阿呆","小白","美伢","广志","小绿","阿梅","园长","副园长","蜜琪","席林","大婶","卖豆腐der","阿豹","四郎","龙子","熊本的爷爷","九州的外公","阿银","玛丽","德朗","石阪","川口那小子","由美","书店老板","动感超人","钢达姆机器人","卖间九里代","玛丽莲","热藻椎造","小爱","小惠","小葵","小等","新子","上尾老师","黑矶","真伢","梦伢","风间麻麻","妮妮麻麻","正南麻麻","风间粑粑","妮妮粑粑","正南粑粑","小优","胆固醇麻醉","丽莎阿司匹林","厚子","厚美","厚司","中村","科长","部长","董事长","社长","史皮伯","魔法少女可爱P","叶月"];
@@ -182,26 +213,26 @@ function initWebSocket() {
   };
 
   // 收到消息时的处理逻辑
-  // ws.onmessage = function(evt) {
-  //   console.log("Received Message: " + evt.data);
-  //   let data_array = JSON.parse(evt.data);
-  //   // data_array.cmd = undefined;
-  //   console.log(data_array);
-  //
-  //   let data;
-  //   if (data_array.cmd === "msg") {
-  //     data = data_array.response.data
-  //     addChatWith(msg(data.from, data.msg))
-  //   } else if (data_array.cmd === "enter") {
-  //     data = data_array.response.data
-  //     addChatWith(msg("园长", "欢迎 " + data.from + " 加入~"))
-  //     addUserList(data.from)
-  //   } else if (data_array.cmd === "exit") {
-  //     data = data_array.response.data
-  //     addChatWith(msg("园长", data.from + " 悄悄的离开了~"))
-  //     delUserList(data.from)
-  //   }
-  // };
+  ws.onmessage = function(evt) {
+    console.log("Received Message: " + evt.data);
+    let data_array = JSON.parse(evt.data);
+    console.log(data_array);
+
+    let data;
+    // 这里的 .cmd 是服务端定义在 msg_model 中的
+    if (data_array.cmd === "msg") {
+      data = data_array.response.data
+      addChatWith(buildMsgChat(data.from, data.msg))}
+    // } else if (data_array.cmd === "enter") {
+    //   data = data_array.response.data
+    //   addChatWith(msg("园长", "欢迎 " + data.from + " 加入~"))
+    //   // addUserList(data.from)
+    // } else if (data_array.cmd === "exit") {
+    //   data = data_array.response.data
+    //   addChatWith(msg("园长", data.from + " 悄悄的离开了~"))
+    //   // delUserList(data.from)
+    // }
+  };
 }
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -209,24 +240,6 @@ document.addEventListener("DOMContentLoaded", function() {
   initWebSocket();
 });
 /*************************************************************/
-// 把name和msg封装成html结构，用来展示到聊天区
-function buildMsgBox(name, msg) {
-
-  // 根据 name 的值确定外层 div 的类名
-  let msgBoxClass = (name === member) ? 'chat-msg owner' : 'chat-msg';
-  return '<div class="' + msgBoxClass + '">' +
-        // 成员信息 div 头像 + 消息时间
-        '<div class="chat-msg-profile">' +
-          '<img class="chat-msg-avatar" src="' + avatarMap[name] + '" alt="' + name + '">' +
-          '<div class="chat-msg-date">' + currentTime() + '</div>' +
-        '</div>' +
-        // 聊天内容展示区
-        '<div class="chat-msg-content">' +
-          '<div class="chat-msg-text">' + msg + '</div>' +
-        '</div>' +
-      '</div>'
-}
-
 // 聊天框追加聊天内容
 function addChatWith(msg) {
   $(".chat-area-main").append(msg);
@@ -237,8 +250,8 @@ function addChatWith(msg) {
 // 发送消息
 function sendMsg() {
   // 使用 jQuery 选择器来获取页面上具有 name 属性值为 "msg2send" 的 <input> 元素的值，并将其存储在变量 msg 中。
-  let msg = $("input[name='msg2send']").val()
-  if (msg !== "") {
+  let msgContent = $("input[name='msg2send']").val()
+  if (msgContent !== "") {
     $.ajax({
       type: "POST",
       url: 'http://'+homeData.httpUrl+'/user/sendMessageAll',
@@ -246,12 +259,12 @@ function sendMsg() {
         appId: appId,
         userId: member,
         msgId: sendId(),
-        message: msg,
+        message: msgContent,
       },
       contentType: "application/x-www-form-urlencoded",
       success: function(data) {
         console.log(data);
-        addChatWith(buildMsgBox(member, msg))
+        addChatWith(buildMsgChat(member, msgContent))
         // 输入框的内容置空
         $("input[name='msg2send']").val("");
       }

@@ -21,12 +21,12 @@ import (
 type ClientManager struct {
 	Clients     map[*Client]bool   // 全部的连接
 	ClientsLock sync.RWMutex       // 读写锁
-	Users       map[string]*Client // 登录的用户 // appId+uuid
+	Users       map[string]*Client // 登录的用户 appId+uuid 唯一标识 ws 连接
 	UserLock    sync.RWMutex       // 读写锁
 	Register    chan *Client       // 连接连接处理
 	Login       chan *login        // 用户登录处理
 	Unregister  chan *Client       // 断开连接处理程序
-	Broadcast   chan []byte        // 广播 向全部成员发送数据
+	Broadcast   chan []byte        // 广播 向全部童鞋发送数据
 }
 
 func NewClientManager() (clientManager *ClientManager) {
@@ -117,7 +117,7 @@ func (manager *ClientManager) DelClients(client *Client) {
 	}
 }
 
-// 获取用户的连接
+// GetUserClient 获取某个在线童鞋的客户端 包含 ws 连接
 func (manager *ClientManager) GetUserClient(appId uint32, userId string) (client *Client) {
 
 	manager.UserLock.RLock()
@@ -197,7 +197,7 @@ func (manager *ClientManager) GetUserList(appId uint32) (userList []string) {
 	return
 }
 
-// 获取用户的key
+// GetUserClients 获取全部在线用户的客户端
 func (manager *ClientManager) GetUserClients() (clients []*Client) {
 
 	clients = make([]*Client, 0)
@@ -210,7 +210,7 @@ func (manager *ClientManager) GetUserClients() (clients []*Client) {
 	return
 }
 
-// 向全部成员(除了自己)发送数据
+// 向全部童鞋(除了自己)发送数据
 func (manager *ClientManager) sendAll(message []byte, ignoreClient *Client) {
 
 	clients := manager.GetUserClients()
@@ -221,11 +221,12 @@ func (manager *ClientManager) sendAll(message []byte, ignoreClient *Client) {
 	}
 }
 
-// 向全部成员(除了自己)发送数据
+// 向全部童鞋(除了自己)发送数据
 func (manager *ClientManager) sendAppIdAll(message []byte, appId uint32, ignoreClient *Client) {
 
 	clients := manager.GetUserClients()
 	for _, conn := range clients {
+		// 只给某个聊天室(依据appid判定)中，除了自己的人发消息
 		if conn != ignoreClient && conn.AppId == appId {
 			conn.SendMsg(message)
 		}
@@ -376,10 +377,10 @@ func GetUserList(appId uint32) (userList []string) {
 	return
 }
 
-// 全员广播
+// AllSendMessages 全员广播
 func AllSendMessages(appId uint32, userId string, data string) {
 	fmt.Println("全员广播", appId, userId, data)
 
-	ignoreClient := clientManager.GetUserClient(appId, userId)
+	ignoreClient := clientManager.GetUserClient(appId, userId) // 这里是忽略自己，不用给本人再发消息了
 	clientManager.sendAppIdAll([]byte(data), appId, ignoreClient)
 }

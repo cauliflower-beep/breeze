@@ -12,9 +12,9 @@ import "breeze/common"
 const (
 	MessageTypeText = "text"
 
-	MessageCmdMsg   = "msg"
-	MessageCmdEnter = "enter"
-	MessageCmdExit  = "exit"
+	MessageCmdMsg   = "msg"   // 发送聊天消息
+	MessageCmdEnter = "enter" // 新童鞋加入聊天室
+	MessageCmdExit  = "exit"  // 有童鞋离开
 )
 
 // 消息的定义
@@ -25,7 +25,7 @@ type Message struct {
 	From   string `json:"from"`   // 发送者
 }
 
-func NewTestMsg(from string, Msg string) (message *Message) {
+func NewTextMsg(from string, Msg string) (message *Message) {
 
 	message = &Message{
 		Type: MessageTypeText,
@@ -37,13 +37,15 @@ func NewTestMsg(from string, Msg string) (message *Message) {
 }
 
 func getTextMsgData(cmd, uuId, msgId, message string) string {
-	textMsg := NewTestMsg(uuId, message)
+	// 消息内容
+	textMsg := NewTextMsg(uuId, message)
+	// 消息头
 	head := NewResponseHead(msgId, cmd, common.OK, "Ok", textMsg)
 
 	return head.String()
 }
 
-// 文本消息
+// GetMsgData 生成文本消息
 func GetMsgData(uuId, msgId, cmd, message string) string {
 
 	return getTextMsgData(cmd, uuId, msgId, message)

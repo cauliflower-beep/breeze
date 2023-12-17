@@ -49,7 +49,7 @@ func Online(c *gin.Context) {
 	controllers.Response(c, common.OK, "", data)
 }
 
-// 给用户发送消息
+// SendMessage 给某个用户发送消息
 func SendMessage(c *gin.Context) {
 	// 获取参数
 	appIdStr := c.PostForm("appId")
@@ -83,7 +83,7 @@ func SendMessage(c *gin.Context) {
 	controllers.Response(c, common.OK, "", data)
 }
 
-// 给全员发送消息
+// SendMessageAll 发送全员消息 client -> server
 func SendMessageAll(c *gin.Context) {
 	// 获取参数
 	appIdStr := c.PostForm("appId")
@@ -95,18 +95,18 @@ func SendMessageAll(c *gin.Context) {
 
 	fmt.Println("http_request 给全体用户发送消息", appIdStr, userId, msgId, message)
 
+	// 消息去重
 	data := make(map[string]interface{})
 	if cache.SeqDuplicates(msgId) {
 		fmt.Println("给用户发送消息 重复提交:", msgId)
 		controllers.Response(c, common.OK, "", data)
-
 		return
 	}
 
+	// 由服务器主动向客户端发送消息 websocket yes
 	sendResults, err := websocket.SendUserMessageAll(appId, userId, msgId, models.MessageCmdMsg, message)
 	if err != nil {
 		data["sendResultsErr"] = err.Error()
-
 	}
 
 	data["sendResults"] = sendResults
