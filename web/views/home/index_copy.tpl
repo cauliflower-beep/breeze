@@ -306,17 +306,7 @@
             return html
         }
 
-        function myMsg(name, msg) {
-            let html = '<div class="user-group">' +
-                '<div class="user-msg">' +
-                '<span class="user-reply">' + msg + '</span>' +
-                '<i class="triangle-user"></i>' +
-                '</div>' +
-                '<div class="user-img" >' + name + '</div>' +
-                // '<img class="user-img" src="http://localhost/public/img/cc.jpg" />'+
-                '</div>';
-            return html
-        }
+        ////////////////////////把消息封装成html结构，展示到聊天区
 
         function userDiv(name) {
 
@@ -327,12 +317,7 @@
 
         }
 
-        function addChatWith(msg) {
-            $(".chat-with").append(msg);
-            // 页面滚动条置底
-            $('.chat-with').animate({ scrollTop: document.body.clientHeight + 10000 + 'px' }, 80);
-
-        }
+        ////////////////////addChatWith 聊天框中追加聊天内容，并且滚动条划到底部
 
         function addUserList(name) {
             music = "<li id=\"" + name + "\">" + name + "</li>";
@@ -352,11 +337,7 @@
 
         /////////////////heartbeat
 
-        // 点击按钮事件
-        // $("button").click(function() {
-        $("input[name='button']").click(function() {
-            sendMsg();
-        });
+        /////////////////////////////////////////////发送消息按钮
 
         // 回车提交
         function doSubmit() {
@@ -364,58 +345,11 @@
             return false;
         }
 
-        function sendMsg() {
-            let msg = $("input[name='msg']").val()
-            console.log("button 点击:" + msg);
-            if (msg !== "") {
-
-                $.ajax({
-                    type: "POST",
-                    url: 'http://{{ .httpUrl }}/user/sendMessageAll',
-                    data: {
-                        appId: appId,
-                        userId: person,
-                        msgId: sendId(),
-                        message: msg,
-                    },
-                    contentType: "application/x-www-form-urlencoded",
-                    success: function(data) {
-                        console.log(data);
-                        addChatWith(myMsg(person, msg))
-                        $("input[name='msg']").val("");
-                    }
-                });
-            }
-        }
+        /////////////发送消息 sendMsg
 
         setTimeout(function() { getUserList(); }, 500); // 1秒后将会调用执行
 
-        function getUserList() {
-            $.ajax({
-                type: "GET",
-                url: "http://{{ .httpUrl }}/user/list?appId=" + appId,
-                dataType: "json",
-                success: function(data) {
-                    console.log("user list:" + data.code + "userList:" + data.data.userList);
-                    if (data.code != 200) {
-                        return false
-                    }
-                    var music = "";
-                    //i表示在data中的索引位置，n表示包含的信息的对象
-                    $.each(data.data.userList, function(i, n) {
-                        //获取对象中属性为optionsValue的值
-                        let name = n
-                        if (n == person) {
-                            name = name + "(自己)"
-                        }
-                        music += "<li id=\"" + n + "\">" + name + "</li>";
-                    });
-                    $(".personnel-list-ul").append(music);
-
-                    return false
-                }
-            });
-        }
+        ////////////////获取在线用户列表 getUserList
 
         /////////////////getName
         </script>

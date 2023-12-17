@@ -389,7 +389,8 @@ html {
   flex-grow: 1;
 }
 
-.chat-msg-img {
+/*聊天区展示的用户头像*/
+.chat-msg-avatar {
   height: 40px;
   width: 40px;
   border-radius: 50%;

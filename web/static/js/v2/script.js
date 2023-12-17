@@ -28,6 +28,7 @@ const avatarMap = {
   "野原一家": "../../static/avatar/野原一家.jpg"
 };
 
+/*****************************事件区*****************************************/
 // 选择主题配色
 colors.forEach(color => {
   color.addEventListener('click', e => {
@@ -49,6 +50,15 @@ msgSelected.forEach(msg => {
 // 切换夜间模式
 toggleButton.addEventListener('click', () => {
   document.body.classList.toggle('dark-mode');
+});
+
+// 上面添加事件的方法是js原生的，这里我们换个写法，使用jQuery来添加监听事件
+$("#sendMsg").on("keypress", function(event) {
+  // 检查是否按下的是回车键（键码为 13）
+  if (event.key === "Enter") {
+    sendMsg();
+  }
+  // 当然你也可以像上面一样，先依据 id 获取对应的元素，进而添加监听事件
 });
 /*********************************************************************/
 // 聊天区域展示在线用户列表
@@ -144,6 +154,7 @@ function heartbeat() {
   ws.send('{"seq":"' + sendId() + '","cmd":"heartbeat","data":{}}');
 }
 
+// 初始化 websocket 连接
 function initWebSocket() {
   // 创建 websocket 实例，连接到指定的 ws:url
   ws = new WebSocket("ws://"+homeData.webSocketUrl+"/acc");
@@ -171,26 +182,26 @@ function initWebSocket() {
   };
 
   // 收到消息时的处理逻辑
-  ws.onmessage = function(evt) {
-    console.log("Received Message: " + evt.data);
-    let data_array = JSON.parse(evt.data);
-    // data_array.cmd = undefined;
-    console.log(data_array);
-
-    let data;
-    if (data_array.cmd === "msg") {
-      data = data_array.response.data
-      addChatWith(msg(data.from, data.msg))
-    } else if (data_array.cmd === "enter") {
-      data = data_array.response.data
-      addChatWith(msg("园长", "欢迎 " + data.from + " 加入~"))
-      addUserList(data.from)
-    } else if (data_array.cmd === "exit") {
-      data = data_array.response.data
-      addChatWith(msg("园长", data.from + " 悄悄的离开了~"))
-      delUserList(data.from)
-    }
-  };
+  // ws.onmessage = function(evt) {
+  //   console.log("Received Message: " + evt.data);
+  //   let data_array = JSON.parse(evt.data);
+  //   // data_array.cmd = undefined;
+  //   console.log(data_array);
+  //
+  //   let data;
+  //   if (data_array.cmd === "msg") {
+  //     data = data_array.response.data
+  //     addChatWith(msg(data.from, data.msg))
+  //   } else if (data_array.cmd === "enter") {
+  //     data = data_array.response.data
+  //     addChatWith(msg("园长", "欢迎 " + data.from + " 加入~"))
+  //     addUserList(data.from)
+  //   } else if (data_array.cmd === "exit") {
+  //     data = data_array.response.data
+  //     addChatWith(msg("园长", data.from + " 悄悄的离开了~"))
+  //     delUserList(data.from)
+  //   }
+  // };
 }
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -198,3 +209,52 @@ document.addEventListener("DOMContentLoaded", function() {
   initWebSocket();
 });
 /*************************************************************/
+// 把name和msg封装成html结构，用来展示到聊天区
+function buildMsgBox(name, msg) {
+
+  // 根据 name 的值确定外层 div 的类名
+  let msgBoxClass = (name === member) ? 'chat-msg owner' : 'chat-msg';
+  return '<div class="' + msgBoxClass + '">' +
+        // 成员信息 div 头像 + 消息时间
+        '<div class="chat-msg-profile">' +
+          '<img class="chat-msg-avatar" src="' + avatarMap[name] + '" alt="' + name + '">' +
+          '<div class="chat-msg-date">' + currentTime() + '</div>' +
+        '</div>' +
+        // 聊天内容展示区
+        '<div class="chat-msg-content">' +
+          '<div class="chat-msg-text">' + msg + '</div>' +
+        '</div>' +
+      '</div>'
+}
+
+// 聊天框追加聊天内容
+function addChatWith(msg) {
+  $(".chat-area-main").append(msg);
+  // 页面滚动条置底
+  $('.chat-area-main').animate({ scrollTop: document.body.clientHeight + 10000 + 'px' }, 80);
+}
+
+// 发送消息
+function sendMsg() {
+  // 使用 jQuery 选择器来获取页面上具有 name 属性值为 "msg2send" 的 <input> 元素的值，并将其存储在变量 msg 中。
+  let msg = $("input[name='msg2send']").val()
+  if (msg !== "") {
+    $.ajax({
+      type: "POST",
+      url: 'http://'+homeData.httpUrl+'/user/sendMessageAll',
+      data: {
+        appId: appId,
+        userId: member,
+        msgId: sendId(),
+        message: msg,
+      },
+      contentType: "application/x-www-form-urlencoded",
+      success: function(data) {
+        console.log(data);
+        addChatWith(buildMsgBox(member, msg))
+        // 输入框的内容置空
+        $("input[name='msg2send']").val("");
+      }
+    });
+  }
+}

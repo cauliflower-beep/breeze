@@ -198,9 +198,13 @@
 
   <!--  聊天区-->
   <div class="chat-area">
-   
+
+   <!--   聊天区头部-->
    <div class="chat-area-header">
+
+    <!--    当前聊天群组-->
     <div class="chat-area-title">向日葵班</div>
+
     <div class="chat-area-group" id="chat-area-avatarContainer">
      <!--
          这个区域来展示当前群组的在线用户头像
@@ -213,99 +217,12 @@
          脚本逻辑很简单，依次获取在线用户，索引到头像，创建img标签加过来。
      -->
     </div>
+
    </div>
 
    <!--   聊天主区-->
    <div class="chat-area-main">
 
-    <!--    他人消息-->
-    <div class="chat-msg">
-     <div class="chat-msg-profile">
-      <img class="chat-msg-img" src="../../static/avatar/小新2.jpg" alt="" />
-      <div class="chat-msg-date">Message seen 1.22pm</div>
-     </div>
-     <div class="chat-msg-content">
-      <div class="chat-msg-text">Luctus et ultrices posuere cubilia curae.</div>
-      <div class="chat-msg-text">
-       <img src="https://media0.giphy.com/media/yYSSBtDgbbRzq/giphy.gif?cid=ecf05e47344fb5d835f832a976d1007c241548cc4eea4e7e&rid=giphy.gif" /></div>
-      <div class="chat-msg-text">Neque gravida in fermentum et sollicitudin ac orci phasellus egestas. Pretium lectus quam id leo.</div>
-     </div>
-    </div>
-
-    <!--    本人消息-->
-    <div class="chat-msg owner">
-     <div class="chat-msg-profile">
-      <img class="chat-msg-img" src="../../static/avatar/小新2.jpg" alt="" />
-      <div class="chat-msg-date">Message seen 1.22pm</div>
-     </div>
-     <div class="chat-msg-content">
-      <div class="chat-msg-text">Sit amet risus nullam eget felis eget. Dolor sed viverra ipsum😂😂😂</div>
-      <div class="chat-msg-text">Cras mollis nec arcu malesuada tincidunt.</div>
-     </div>
-    </div>
-
-    <!--    他人消息-->
-    <div class="chat-msg">
-     <div class="chat-msg-profile">
-      <img class="chat-msg-img" src="../../static/avatar/沿川团.jpg" alt="">
-      <div class="chat-msg-date">Message seen 2.45pm</div>
-     </div>
-     <div class="chat-msg-content">
-      <div class="chat-msg-text">Aenean tristique maximus tortor non tincidunt. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae😊</div>
-      <div class="chat-msg-text">Ut faucibus pulvinar elementum integer enim neque volutpat.</div>
-     </div>
-    </div>
-
-    <div class="chat-msg owner">
-     <div class="chat-msg-profile">
-      <img class="chat-msg-img" src="../../static/avatar/小新2.jpg" alt="" />
-      <div class="chat-msg-date">Message seen 2.50pm</div>
-     </div>
-     <div class="chat-msg-content">
-      <div class="chat-msg-text">posuere eget augue sodales, aliquet posuere eros.</div>
-      <div class="chat-msg-text">Cras mollis nec arcu malesuada tincidunt.</div>
-     </div>
-    </div>
-
-    <div class="chat-msg">
-     <div class="chat-msg-profile">
-      <img class="chat-msg-img" src="../../static/avatar/野原一家.jpg" alt="" />
-      <div class="chat-msg-date">Message seen 3.16pm</div>
-     </div>
-     <div class="chat-msg-content">
-      <div class="chat-msg-text">Egestas tellus rutrum tellus pellentesque</div>
-     </div>
-    </div>
-
-    <div class="chat-msg">
-     <div class="chat-msg-profile">
-      <img class="chat-msg-img" src="../../static/avatar/小新2.jpg" alt="" class="account-profile" alt="">
-      <div class="chat-msg-date">Message seen 3.16pm</div>
-     </div>
-     <div class="chat-msg-content">
-      <div class="chat-msg-text">Consectetur adipiscing elit pellentesque habitant morbi tristique senectus et.</div>
-     </div>
-    </div>
-
-    <div class="chat-msg owner">
-     <div class="chat-msg-profile">
-      <img class="chat-msg-img" src="../../static/avatar/小新2.jpg" alt="" />
-      <div class="chat-msg-date">Message seen 2.50pm</div>
-     </div>
-     <div class="chat-msg-content">
-      <div class="chat-msg-text">Tincidunt arcu non sodales😂</div>
-     </div>
-    </div>
-
-    <div class="chat-msg">
-     <div class="chat-msg-profile">
-      <img class="chat-msg-img" src="../../static/avatar/沿川团.jpg" alt="">
-      <div class="chat-msg-date">Message seen 3.16pm</div>
-     </div>
-     <div class="chat-msg-content">
-      <div class="chat-msg-text">Consectetur adipiscing elit pellentesque habitant morbi tristique senectus et🥰</div>
-     </div>
-    </div>
 
    </div>
 
@@ -336,7 +253,7 @@
     </svg>
 
     <!--    消息输入框-->
-    <input type="text" placeholder="Type something here..." />
+    <input type="text" name="msg2send" placeholder="正在翻字典..." id="sendMsg" />
 
     <!--    emoji-->
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather feather-smile">
