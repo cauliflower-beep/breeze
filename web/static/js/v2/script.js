@@ -62,7 +62,7 @@ $("#sendMsg").on("keypress", function(event) {
 });
 /*********************************************************************/
 // 聊天区域展示在线用户列表
-function membersOnline() {
+function getMembersOnline() {
   // $ 是jQuery库的别名，用于访问jQuery提供的功能
   $.ajax({
     type: "GET",
@@ -109,7 +109,7 @@ function membersOnline() {
 msgGroup.forEach(group => {
   group.addEventListener('click', e => {
     // 请求服务器，获取当前群组内的全部在线用户
-    membersOnline()
+    getMembersOnline()
   });
 });
 /*****************************聊天区消息封装***********************************/
@@ -133,16 +133,14 @@ function buildMsgChat(name, msg) {
 }
 
 // 提示类消息 例如"xxx进入了聊天室"
-function buildMsgNotice(name, msg) {
-  let html = '<div class="admin-group">' +
-      '<div class="admin-img" >' + name + '</div>' +
-      // '<img class="admin-img" src="http://localhost/public/img/aa.jpg" />'+
-      '<div class="admin-msg">' +
-      '<i class="triangle-admin"></i>' +
-      '<span class="admin-reply">' + msg + '</span>' +
-      '</div>' +
-      '</div>';
-  return html
+function buildMsgNotice(notice) {
+  return '<div class="chat-msg-notice">'+
+      // '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather feather-video">'+
+      //   '<path d="M23 7l-7 5 7 5V7z" />'+
+      //   '<rect x="1" y="5" width="15" height="14" rx="2" ry="2" />'+
+      // '</svg>' +
+      notice +
+      '</div>'
 }
 /****************************** websocket连接相关 *******************************************/
 function getName(){
@@ -222,16 +220,19 @@ function initWebSocket() {
     // 这里的 .cmd 是服务端定义在 msg_model 中的
     if (data_array.cmd === "msg") {
       data = data_array.response.data
-      addChatWith(buildMsgChat(data.from, data.msg))}
-    // } else if (data_array.cmd === "enter") {
-    //   data = data_array.response.data
-    //   addChatWith(msg("园长", "欢迎 " + data.from + " 加入~"))
-    //   // addUserList(data.from)
-    // } else if (data_array.cmd === "exit") {
-    //   data = data_array.response.data
-    //   addChatWith(msg("园长", data.from + " 悄悄的离开了~"))
-    //   // delUserList(data.from)
-    // }
+      addChatWith(buildMsgChat(data.from, data.msg))
+    } else if (data_array.cmd === "enter") {
+      data = data_array.response.data
+      // addChatWith(buildMsgNotice("欢迎 " + data.from + " 加入☆*: .｡. o(≧▽≦)o .｡.:*☆~"))
+      addChatWith(buildMsgNotice("Hi~ o(*￣▽￣*)ブ  欢迎新伙伴加入☆*: .｡. o(≧▽≦)o .｡.:*☆~找找ta是谁?"))
+      // addUserList(data.from)
+      getMembersOnline()
+    } else if (data_array.cmd === "exit") {
+      data = data_array.response.data
+      addChatWith(buildMsgNotice("இ௰இ   有小伙伴悄悄的离开了，ta是谁呢(*≧︶≦))(￣▽￣* )ゞ?"))
+      // delUserList(data.from)
+      getMembersOnline()
+    }
   };
 }
 

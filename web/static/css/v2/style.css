@@ -441,6 +441,28 @@ html {
   color: var(--chat-text-color);
 }
 
+/*聊天区域通知消息样式*/
+.chat-msg-notice {
+  background-color: #FFFF9D;
+  padding: 10px;
+  border-radius: 15px;
+  line-height: 1.2;
+  font-size: 11px;
+  font-weight: 380;
+  display: flex; /* 使用 Flex 布局 */
+  align-items: center; /* 垂直居中对齐 */
+  color: #1d1d1d;
+}
+
+/*聊天区 svg 样式*/
+.chat-msg-notice svg {
+  color: var(--settings-icon-color);
+  width: 20px;
+  flex-shrink: 0;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
 .owner {
   flex-direction: row-reverse;
 }
