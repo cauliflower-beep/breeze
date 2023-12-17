@@ -201,7 +201,7 @@
    
    <div class="chat-area-header">
     <div class="chat-area-title">向日葵班</div>
-    <div class="chat-area-group">
+    <div class="chat-area-group" id="chat-area-avatarContainer">
 
      <!--
          这个区域来展示当前群组的在线用户头像
@@ -209,10 +209,12 @@
          1.我在左侧选择了一个群组；
          2.触发脚本，请求后端获取当前聊天室的全部在线用户；
          3.根据服务器返回数据，拉取用户头像做展示；
-         4.最多展示3个用户，多余的展示为 "+n"
+         4.最多展示5个用户，多余的展示为 "n+"
+
+         脚本逻辑很简单，依次获取在线用户，索引到头像，创建img标签加过来。
      -->
 
-     <span>+4</span>
+     <span>n+</span>
     </div>
    </div>
 
@@ -463,6 +465,7 @@
   <!--  body中的脚本是异步加载的，页面渲染的同时，后台也在下载脚本-->
   <!--适用于页面加载过程中，不需要立即执行的脚本-->
   <!--将<script>放在body底部是一种常见的做法，用于提升页面的渲染性能-->
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
   <script  src="../../static/js/v2/script.js"></script>
 
 </body>

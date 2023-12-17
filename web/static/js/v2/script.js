@@ -5,10 +5,28 @@ const msgSelected = document.querySelectorAll('.msg');
 // 所有群组消息
 const msgGroup = document.querySelectorAll('.group');
 
+// 聊天区的在线用户列表
+const chatAreaAvatarContainer = document.getElementById('chat-area-avatarContainer')
+
 // WebSocket连接
 let ws;
-let person;
+let member;
 let appId = 101; // 你的应用程序ID
+
+const avatarMap = {
+  // 从 chrome 调试控制台推测的，貌似是以 HTML 文件为起点
+  "小新2": "../../static/avatar/小新2.jpg",
+  "小新3": "../../static/avatar/小新3.jpg",
+  "上尾老师": "../../static/avatar/上尾老师.jpg",
+  "动感超人": "../../static/avatar/动感超人.jpg",
+  "小爱": "../../static/avatar/小爱.jpg",
+  "春日部防卫队": "../../static/avatar/春日部防卫队.jpg",
+  "暴走族": "../../static/avatar/暴走族.jpg",
+  "松阪老师": "../../static/avatar/松阪老师.jpg",
+  "沿川团": "../../static/avatar/沿川团.jpg",
+  "胯下痛公寓": "../../static/avatar/胯下痛公寓.jpg",
+  "野原一家": "../../static/avatar/野原一家.jpg"
+};
 
 colors.forEach(color => {
   color.addEventListener('click', e => {
@@ -31,29 +49,49 @@ toggleButton.addEventListener('click', () => {
   document.body.classList.toggle('dark-mode');
 });
 /*********************************************************************/
+// 获取在线用户列表
+function getUserList() {
+  $.ajax({
+    type: "GET",
+    url: "http://" + homeData.httpUrl + "/user/list?appId=" + appId,
+    dataType: "json",
+    success: function(data) {
+      console.log("user list:" + data.code + "userList:" + data.data.userList);
+      if (data.code !== 200) {
+        return false
+      }
+      let music = "";
+      //i表示在data中的索引位置，n表示包含的信息的对象
+      $.each(data.data.userList, function(i, n) {
+        // 添加在线成员头像
+        const avatarOnline = document.createElement('img');
+        avatarOnline.src = avatarMap[n]
+        avatarOnline.alt = n
+        chatAreaAvatarContainer.appendChild(avatarOnline)
+
+        // let
+        // let name = n
+        // if (n === member) {
+        //   name = name + "(自己)"
+        // }
+        // music += "<li id=\"" + n + "\">" + name + "</li>";
+      });
+      // $(".membernel-list-ul").append(music);
+
+      return false
+    }
+  });
+}
+
 // 给所有群组消息添加一个 click 事件
 msgGroup.forEach(group => {
   group.addEventListener('click', e => {
     // 请求服务器，获取当前群组内的全部在线用户
+    getUserList()
   });
 });
 
 /****************************** websocket连接相关 *******************************************/
-const avatarMap = {
-  // 从 chrome 调试控制台推测的，貌似是以 HTML 文件为起点
-  "小新2": "../../static/avatar/小新2.jpg",
-  "小新3": "../../static/avatar/小新3.jpg",
-  "上尾老师": "../../static/avatar/上尾老师.jpg",
-  "动感超人": "../../static/avatar/动感超人.jpg",
-  "小爱": "../../static/avatar/小爱.jpg",
-  "春日部防卫队": "../../static/avatar/春日部防卫队.jpg",
-  "暴走族": "../../static/avatar/暴走族.jpg",
-  "松阪老师": "../../static/avatar/松阪老师.jpg",
-  "沿川团": "../../static/avatar/沿川团.jpg",
-  "胯下痛公寓": "../../static/avatar/胯下痛公寓.jpg",
-  "野原一家": "../../static/avatar/野原一家.jpg"
-};
-
 function getName(){
   // let names = ["小新","风间","妮妮","正南","阿呆","小白","美伢","广志","小绿","阿梅","园长","副园长","蜜琪","席林","大婶","卖豆腐der","阿豹","四郎","龙子","熊本的爷爷","九州的外公","阿银","玛丽","德朗","石阪","川口那小子","由美","书店老板","动感超人","钢达姆机器人","卖间九里代","玛丽莲","热藻椎造","小爱","小惠","小葵","小等","新子","上尾老师","黑矶","真伢","梦伢","风间麻麻","妮妮麻麻","正南麻麻","风间粑粑","妮妮粑粑","正南粑粑","小优","胆固醇麻醉","丽莎阿司匹林","厚子","厚美","厚司","中村","科长","部长","董事长","社长","史皮伯","魔法少女可爱P","叶月"];
 
@@ -66,6 +104,20 @@ function currentTime() {
   return (new Date()).valueOf()
 }
 
+// 生成随机数
+function randomNumber(minNum, maxNum) {
+  // 根据传入参数的个数执行不同逻辑
+  switch (arguments.length) {
+    case 1:
+      // radix 是进制
+      return parseInt((Math.random() * minNum + 1).toString(), 10);
+    case 2:
+      return parseInt((Math.random() * (maxNum - minNum + 1) + minNum).toString(), 10);
+    default:
+      return 0;
+  }
+}
+
 function sendId() {
   let timeStamp = currentTime();
   let randId = randomNumber(100000, 999999);
@@ -75,7 +127,7 @@ function sendId() {
 
 // 心跳
 function heartbeat() {
-  console.log("定时心跳:" + person);
+  console.log("定时心跳:" + member);
 
   ws.send('{"seq":"' + sendId() + '","cmd":"heartbeat","data":{}}');
 }
@@ -89,18 +141,18 @@ function initWebSocket() {
     console.log("Connection open ...");
 
     // 获取用户名
-    person = getName();
+    member = getName();
     // 获取个人头像
-    let avatarSrc = avatarMap[person]
+    let avatarSrc = avatarMap[member]
     // 将头像填入HTML中的img标签
     const userProfileImg = document.querySelector(".user-profile");
     if (userProfileImg) {
       userProfileImg.src = avatarSrc;
     }
-    console.log("用户准备登陆:" + person);
+    console.log("用户准备登陆:" + member);
 
     // 发送登录命令
-    ws.send('{"seq":"' + sendId() + '","cmd":"login","data":{"userId":"' + person + '","appId":'+ appId +'}}');
+    ws.send('{"seq":"' + sendId() + '","cmd":"login","data":{"userId":"' + member + '","appId":'+ appId +'}}');
 
     // 定时心跳
     setInterval(heartbeat, 30 * 1000);
